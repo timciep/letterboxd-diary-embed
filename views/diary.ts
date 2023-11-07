@@ -33,6 +33,7 @@ export default function diaryView(diaryList: Diary[], username: string): string 
         font-weight: bold;
         font-size: 1.1rem;
         margin-bottom: 0.1rem;
+        text-align: left;
     }
 
     .letterboxd-embed-tc-date {

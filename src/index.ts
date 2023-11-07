@@ -61,6 +61,16 @@ export default {
 
 		if ( ! html) {
 			html = await getHtml(username, test);
+
+			if (html === null) {
+				return new Response('404. Letterboxd username not found.', {
+					status: 404,
+					headers: {
+						"content-type": "text/plain;charset=UTF-8",
+						"Access-Control-Allow-Origin": "*",
+					},
+				});
+			}
 	
 			if ( ! test && cache) {
 				await env.letterboxd_diary_cache.put(username, html, {

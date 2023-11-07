@@ -21,6 +21,13 @@ Add the following to your website, where you want the list (**replace \<your-let
 </script>
 ```
 
+### URL params for fetch
+
+* `username`: (required) Letterboxd username.
+* `test`: If `true`, uses hard-coded Letterboxd response from repo.
+* `nocache`: If `true`, passes 1-hour cache of response.
+* `raw`: If `true`, returns raw uncached Letterboxd JSON payload.
+
 ## Develop locally
 
 ```

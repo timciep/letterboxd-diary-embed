@@ -1,0 +1,19 @@
+<html>
+<head>
+    <title>Test</title>
+</head>
+
+<body>
+    <h1>Test</h1>
+    <p>Test</p>
+
+    <div id="letterboxd-embed-wrapper-tc"></div>
+    <script>
+        fetch('http://127.0.0.1:8787/?test=true&username=timciep')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('letterboxd-embed-wrapper-tc').innerHTML = data;
+            });
+    </script>
+</body>
+</html>

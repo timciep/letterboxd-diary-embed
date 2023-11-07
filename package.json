@@ -5,11 +5,15 @@
   "scripts": {
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
-    "start": "wrangler dev"
+    "start": "wrangler dev",
+    "flush_diary_cache": "wrangler kv:namespace delete --binding letterboxd_diary_cache && wrangler kv:namespace create letterboxd_diary_cache"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20230419.0",
     "typescript": "^5.0.4",
     "wrangler": "^3.0.0"
+  },
+  "dependencies": {
+    "letterboxd-api": "^1.0.2"
   }
 }

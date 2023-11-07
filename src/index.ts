@@ -8,9 +8,11 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
+import { getHtml } from "./letterboxd/letterboxd-helper";
+
 export interface Env {
 	// Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
-	// MY_KV_NAMESPACE: KVNamespace;
+	letterboxd_diary_cache: KVNamespace;
 	//
 	// Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
 	// MY_DURABLE_OBJECT: DurableObjectNamespace;
@@ -27,6 +29,45 @@ export interface Env {
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-		return new Response('Hello World!');
+		const queryParams = getQueryParamsFromUrl(request.url);
+
+		const test = queryParams.get('test') === 'true';
+		const username = queryParams.get('username');
+
+		if ( ! username) {
+			return new Response('400. Request missing Letterboxd username.', {
+				status: 400,
+				headers: {
+					"content-type": "text/plain;charset=UTF-8",
+					"Access-Control-Allow-Origin": "*",
+				},
+			});
+		}
+
+		let html = !test ? await env.letterboxd_diary_cache.get(username) : null;
+
+		if ( ! html) {
+			html = await getHtml(username, test);
+	
+			if ( ! test) {
+				env.letterboxd_diary_cache.put(username, html, {
+					expirationTtl: 60 * 60, // seconds (= 1 hour)
+				});
+			}
+		}
+
+		return new Response(html, {
+			headers: {
+				"content-type": "text/html;charset=UTF-8",
+				"Access-Control-Allow-Origin": "*",
+			},
+		});
 	},
 };
+
+function getQueryParamsFromUrl(url: string): URLSearchParams {
+	const urlObj = new URL(url);
+	const searchParams = urlObj.searchParams;
+
+	return searchParams;
+}

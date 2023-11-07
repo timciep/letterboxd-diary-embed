@@ -59,11 +59,7 @@ export default {
 			? await env.letterboxd_diary_cache.get(username)
 			: null;
 
-		console.log(html);
-
 		if ( ! html) {
-			console.log('Cache miss for username: ' + username);
-
 			html = await getHtml(username, test);
 	
 			if ( ! test && cache) {

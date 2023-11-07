@@ -59,6 +59,7 @@ export default function diaryView(diaryList: Diary[], username: string): string 
 
     .letterboxd-embed-tc-poster img {
         border-radius: 0.25rem;
+        max-width: unset;
     }
 
     .letterboxd-embed-tc-content {

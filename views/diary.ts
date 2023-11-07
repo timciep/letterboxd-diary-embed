@@ -26,6 +26,7 @@ export default function diaryView(diaryList: Diary[], username: string): string 
         display: flex;
         flex-direction: column;
         gap: 1rem;
+        padding: 0 .5rem;
     }
 
     .letterboxd-embed-tc-title {
@@ -37,6 +38,7 @@ export default function diaryView(diaryList: Diary[], username: string): string 
     .letterboxd-embed-tc-date {
         font-size: 0.9rem;
         margin-bottom: 0.1rem;
+        color: #555;
     }
 
     .letterboxd-embed-tc-rating {
@@ -67,12 +69,12 @@ export default function diaryView(diaryList: Diary[], username: string): string 
 
 <div id="letterboxd-embed-tc">
     ${diaryList.map((diary, idx) => {
-        const date = new Date(diary.date.watched);
-        const dateString = `${MONTHS[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+        const date = diary.date.watched ? new Date(diary.date.watched) : null;
+        const dateString =  date ? `${MONTHS[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}` : '';
 
         const review = diary.review
             ? diary.review.substring(0, REVIEW_CHARS) + (diary.review.length > REVIEW_CHARS 
-                ? '[<a href="' + diary.uri + '">more</a>]' 
+                ? '... [<a href="' + diary.uri + '" target="_blank">more</a>]' 
                 : '')
             : '';
 
@@ -80,7 +82,7 @@ export default function diaryView(diaryList: Diary[], username: string): string 
         <div class="letterboxd-embed-tc-diary-entry">
             <div class="letterboxd-embed-tc-content">
                 <div class="letterboxd-embed-tc-poster">
-                    <a href="${diary.uri}">
+                    <a href="${diary.uri}" target="_blank">
                         <img src="${diary.film?.image?.small ?? ''}" alt="${diary.film.title} poster">
                     </a>
                 </div>
@@ -103,7 +105,7 @@ export default function diaryView(diaryList: Diary[], username: string): string 
     `}).join('')}
 
     <div class="letterboxd-embed-tc-more">
-        <a href="https://letterboxd.com/${username}">...more on Letterboxd</a>
+        <a href="https://letterboxd.com/${username}" target="_blank">...more on Letterboxd</a>
     </div>
 </div>
 `;

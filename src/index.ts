@@ -8,7 +8,7 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
-import { getHtml } from "./letterboxd/letterboxd-helper";
+import { getHtml, getRaw } from "./letterboxd/letterboxd-helper";
 
 export interface Env {
 	// Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
@@ -32,6 +32,7 @@ export default {
 		const queryParams = getQueryParamsFromUrl(request.url);
 
 		const test = queryParams.get('test') === 'true';
+		const cache = queryParams.get('nocache') !== 'true';
 		const username = queryParams.get('username');
 
 		if ( ! username) {
@@ -44,13 +45,29 @@ export default {
 			});
 		}
 
-		let html = !test ? await env.letterboxd_diary_cache.get(username) : null;
+		if (queryParams.get('raw') === 'true') {
+			const raw = await getRaw(username);
+
+			return new Response(JSON.stringify(raw, null, 2), {
+				headers: {
+					"content-type": "application/json;charset=UTF-8",
+				},
+			});
+		}
+
+		let html = !test && cache 
+			? await env.letterboxd_diary_cache.get(username)
+			: null;
+
+		console.log(html);
 
 		if ( ! html) {
+			console.log('Cache miss for username: ' + username);
+
 			html = await getHtml(username, test);
 	
-			if ( ! test) {
-				env.letterboxd_diary_cache.put(username, html, {
+			if ( ! test && cache) {
+				await env.letterboxd_diary_cache.put(username, html, {
 					expirationTtl: 60 * 60, // seconds (= 1 hour)
 				});
 			}

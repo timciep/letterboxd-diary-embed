@@ -64,6 +64,7 @@ export default function diaryView(diaryList: Diary[], username: string): string 
         display: flex;
         flex-direction: row;
         gap: 1rem;
+        text-align: left;
     }
 </style>
 

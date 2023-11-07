@@ -1,6 +1,8 @@
-# ⚠️ Coming soon ⚠️
-
 # Letterboxd diary embed
+
+[Use it here](https://letterboxd-embed.timcieplowski.com/)
+
+---
 
 A Cloudflare Worker, enabling you to embed a list of your most recently watched movies, as logged on [Letterboxd](https://letterboxd.com/), on your website.
 

@@ -4,6 +4,8 @@
 
 A Cloudflare Worker, enabling you to embed a list of your most recently watched movies, as logged on [Letterboxd](https://letterboxd.com/), on your website.
 
+<img width="688" alt="image" src="https://github.com/timciep/letterboxd-diary-embed/assets/2245341/d9ad68e2-6fca-469c-875e-878037252fc6">
+
 ## Use embed
 
 Add the following to your website, where you want the list (**replace \<your-letterboxd-username\>**):

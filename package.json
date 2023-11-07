@@ -1,5 +1,5 @@
 {
-  "name": "cloudflare-worker",
+  "name": "letterboxd-embed",
   "version": "0.0.0",
   "private": true,
   "scripts": {

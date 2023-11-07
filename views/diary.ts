@@ -68,6 +68,10 @@ export default function diaryView(diaryList: Diary[], username: string): string 
         gap: 1rem;
         text-align: left;
     }
+
+    .letterboxd-embed-tc-more {
+        text-align: left;
+    }
 </style>
 
 <div id="letterboxd-embed-tc">

@@ -34,6 +34,14 @@ export default function diaryView(diaryList: Diary[], username: string): string 
         font-size: 1.1rem;
         margin-bottom: 0.1rem;
         text-align: left;
+        line-height: normal;
+    }
+
+    .letterboxd-embed-tc-year {
+        font-weight: normal;
+        font-size: 0.8rem;
+        margin-left: 0.0rem;
+        color: #666;
     }
 
     .letterboxd-embed-tc-date {
@@ -95,11 +103,20 @@ export default function diaryView(diaryList: Diary[], username: string): string 
                 </div>
 
                 <div>
-                    <div class="letterboxd-embed-tc-title">${diary.film.title} (${diary.film.year})</div>
+                    <div class="letterboxd-embed-tc-title">
+                        ${diary.film.title}
+                        <span class="letterboxd-embed-tc-year">
+                            ${diary.film.year}
+                        </span>
+                    </div>
 
-                    <div class="letterboxd-embed-tc-date">${diary.isRewatch ? '&#9850;' : ''} ${dateString}</div>
+                    <div class="letterboxd-embed-tc-date">
+                        ${diary.isRewatch ? '&#9850;' : ''} ${dateString}
+                    </div>
 
-                    <div class="letterboxd-embed-tc-rating">${diary.rating.text ?? ''}</div>
+                    <div class="letterboxd-embed-tc-rating">
+                        ${diary.rating.text ?? ''}
+                    </div>
 
                     ${review ? `
                         <div class="letterboxd-embed-tc-review">${review}</div>

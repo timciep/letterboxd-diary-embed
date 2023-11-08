@@ -13,6 +13,7 @@ import { getHtml, getRaw } from "./letterboxd/letterboxd-helper";
 export interface Env {
 	// Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
 	letterboxd_diary_cache: KVNamespace;
+	referer_log: KVNamespace;
 	//
 	// Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
 	// MY_DURABLE_OBJECT: DurableObjectNamespace;
@@ -34,6 +35,7 @@ export default {
 		const test = queryParams.get('test') === 'true';
 		const cache = queryParams.get('nocache') !== 'true';
 		const username = queryParams.get('username');
+		const raw = queryParams.get('raw');
 
 		if ( ! username) {
 			return new Response('400. Request missing Letterboxd username.', {
@@ -45,7 +47,7 @@ export default {
 			});
 		}
 
-		if (queryParams.get('raw') === 'true') {
+		if (raw === 'true') {
 			const raw = await getRaw(username);
 
 			return new Response(JSON.stringify(raw, null, 2), {
@@ -76,6 +78,12 @@ export default {
 				await env.letterboxd_diary_cache.put(username, html, {
 					expirationTtl: 60 * 60, // seconds (= 1 hour)
 				});
+
+				const referer = request.headers.get('referer');
+
+				if (referer) {
+					await env.referer_log.put(referer, 'true')
+				}
 			}
 		}
 

@@ -1,6 +1,8 @@
 # Letterboxd diary embed
 
-[Use it here](https://letterboxd-embed.timcieplowski.com/)
+* [Use it here](https://letterboxd-embed.timcieplowski.com/)
+
+* [Self-service page (letterboxd-embed.timcieplowski.com) repo](https://github.com/timciep/letterboxd-embed-landing-page)
 
 ---
 

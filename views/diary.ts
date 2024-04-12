@@ -93,7 +93,7 @@ export default function diaryView(diaryList: Diary[], username: string): string 
                 : '')
             : '';
 
-        return `
+        return html`
         <div class="letterboxd-embed-tc-diary-entry">
             <div class="letterboxd-embed-tc-content">
                 <div class="letterboxd-embed-tc-poster">

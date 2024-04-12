@@ -5,7 +5,8 @@
   "scripts": {
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
-    "start": "wrangler dev"
+    "start": "wrangler dev",
+    "postinstall": "patch-package"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20230419.0",
@@ -13,6 +14,7 @@
     "wrangler": "^3.0.0"
   },
   "dependencies": {
-    "letterboxd-api": "^1.0.2"
+    "letterboxd-api": "^1.0.2",
+    "patch-package": "^8.0.0"
   }
 }

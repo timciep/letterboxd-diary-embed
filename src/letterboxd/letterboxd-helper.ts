@@ -5,26 +5,36 @@ import TEST_DATA from './test-diary.json';
 
 const DIARY_LIMIT = 5;
 
-export async function getHtml(username: string, test: boolean): Promise<string|null> {
-    const diaryEntries: Diary[]|null = await getDiaryEntries(username, test);
+export async function getHtml(username: string, test: boolean): Promise<string> {
+    const {diaryEntries, error} = await getDiaryEntries(username, test);
 
-    return diaryEntries ? diaryView(diaryEntries, username) : null;
+    return error || diaryView(diaryEntries, username);
 }
 
 export async function getRaw(username: string): Promise<object> {
     return await letterboxd(username);
 }
 
-async function getDiaryEntries(username: string, test: boolean): Promise<Diary[]|null> {
+async function getDiaryEntries(
+    username: string, 
+    test: boolean
+): Promise<{diaryEntries: Diary[], error: string|null}> {
     let entries: Letterboxd[];
 
     try {
         entries = !test ? await letterboxd(username) : <Letterboxd[]>TEST_DATA;
     } catch (error) {
-        return null;
+        if (error instanceof Error) {
+            return {diaryEntries: [], error: error.message};
+        } else {
+            return {diaryEntries: [], error: "Unknown error"};
+        }
     }
 
-    const diaryEntries: Diary[] = <Diary[]>entries.filter((entry) => entry.type === "diary");
+    const filtered: Diary[] = <Diary[]>entries.filter((entry) => entry.type === "diary");
 
-    return diaryEntries.slice(0, DIARY_LIMIT);
+    return {
+        diaryEntries: filtered.slice(0, DIARY_LIMIT),
+        error: null,
+    };
 }

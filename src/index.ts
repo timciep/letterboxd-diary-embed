@@ -36,6 +36,23 @@ export default {
 		const cache = queryParams.get('nocache') !== 'true';
 		const username = queryParams.get('username');
 		const raw = queryParams.get('raw');
+		const myip = queryParams.get('myip');
+
+		if (myip) {
+			const ipv4 = await fetch('https://api.ipify.org?format=json');
+			const ipv6 = await fetch('https://api64.ipify.org?format=json');
+
+			return new Response(JSON.stringify({
+				// @ts-ignore
+				ipv4: (await ipv4.json())?.ip,
+				// @ts-ignore
+				ipv6: (await ipv6.json())?.ip,
+			}), {
+				headers: {
+					"content-type": "application/json;charset=UTF-8",
+				},
+			});
+		}
 
 		if ( ! username) {
 			return new Response('400. Request missing Letterboxd username.', {

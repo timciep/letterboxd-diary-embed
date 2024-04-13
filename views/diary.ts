@@ -1,6 +1,6 @@
 import { Diary } from "letterboxd-api";
 
-const REVIEW_CHARS = 75;
+const REVIEW_CHARS = 150;
 
 const MONTHS = [
     'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September',

@@ -40,3 +40,7 @@ npm run dev
 ```
 
 [Cloudflare worker docs](https://developers.cloudflare.com/workers/)
+
+---
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/P5P3QXEV3)

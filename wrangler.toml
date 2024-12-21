@@ -54,3 +54,10 @@ kv_namespaces = [
 # [[migrations]]
 # tag = "v1"
 # new_classes = ["MyDurableObject"]
+
+[observability]
+enabled = true
+head_sampling_rate = 1 # optional. default = 1 = 100%
+
+[observability.logs]
+invocation_logs = false

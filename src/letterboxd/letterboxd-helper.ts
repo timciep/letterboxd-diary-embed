@@ -24,12 +24,16 @@ async function getDiaryEntries(
     try {
         entries = !test ? await letterboxd(username) : <Letterboxd[]>TEST_DATA;
     } catch (error) {
+        console.error(error);
+
         if (error instanceof Error) {
             return {diaryEntries: [], error: error.message};
         } else {
             return {diaryEntries: [], error: "Unknown error"};
         }
     }
+
+    console.log({username})
 
     const filtered: Diary[] = <Diary[]>entries.filter((entry) => entry.type === "diary");
 

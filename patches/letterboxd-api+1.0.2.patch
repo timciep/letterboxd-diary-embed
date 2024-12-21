@@ -1,13 +1,29 @@
+diff --git a/node_modules/letterboxd-api/.DS_Store b/node_modules/letterboxd-api/.DS_Store
+new file mode 100644
+index 0000000..c88a062
+Binary files /dev/null and b/node_modules/letterboxd-api/.DS_Store differ
 diff --git a/node_modules/letterboxd-api/dist/letterboxd.js b/node_modules/letterboxd-api/dist/letterboxd.js
-index 7284641..99998b3 100644
+index 7284641..c870016 100644
 --- a/node_modules/letterboxd-api/dist/letterboxd.js
 +++ b/node_modules/letterboxd-api/dist/letterboxd.js
-@@ -269,7 +269,7 @@ function getDiaryData(username) {
-             throw new Error(`No RSS feed found for username by "${username}" at Letterboxd`);
+@@ -262,14 +262,18 @@ function invalidUsername(username) {
+ }
+ function getDiaryData(username) {
+     const uri = `https://letterboxd.com/${username}/rss/`;
++    // const uri = `https://w5yzzn82f1.execute-api.us-east-1.amazonaws.com/?username=${username}`;
+     return (0, node_fetch_1.default)(uri)
+         .then((response) => {
+         // if 404 we're assuming that the username does not exist or have a public RSS feed
+         if (response.status === 404) {
+-            throw new Error(`No RSS feed found for username by "${username}" at Letterboxd`);
++            throw new Error(`No RSS feed found for username "${username}" at Letterboxd`);
++        }
++        else if (response.status === 403) {
++            throw new Error(`[This service has been unintentionally blocked by Letterboxd. I am working with them to restore access.]`);
          }
          else if (response.status !== 200) {
 -            throw new Error("Something went wrong");
-+            throw new Error(`Something went wrong. Response from Letterboxd: ${response.status} ${response.statusText}`);
++            throw new Error(`Bad response from Letterboxd: [${response.status}] ${response.statusText}`);
          }
          return response.text();
      })

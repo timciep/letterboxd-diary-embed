@@ -6,7 +6,8 @@
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
     "start": "wrangler dev",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "patch-lb": "patch-package letterboxd-api"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20230419.0",

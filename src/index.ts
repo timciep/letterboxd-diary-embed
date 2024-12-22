@@ -98,6 +98,8 @@ export default {
 
 				const referer = request.headers.get('referer');
 
+				console.log({username, referer});
+
 				if (referer) {
 					await env.referer_log.put(referer, 'true')
 				}

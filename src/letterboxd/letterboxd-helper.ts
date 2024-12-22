@@ -33,8 +33,6 @@ async function getDiaryEntries(
         }
     }
 
-    console.log({username})
-
     const filtered: Diary[] = <Diary[]>entries.filter((entry) => entry.type === "diary");
 
     return {

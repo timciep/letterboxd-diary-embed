@@ -87,11 +87,15 @@ export default function diaryView(diaryList: Diary[], username: string): string 
         const date = diary.date.watched ? new Date(diary.date.watched) : null;
         const dateString =  date ? `${MONTHS[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}` : '';
 
-        const review = diary.review
+        // Truncate review if it's too long.
+        let review = diary.review
             ? diary.review.substring(0, REVIEW_CHARS) + (diary.review.length > REVIEW_CHARS 
                 ? '... [<a href="' + diary.uri + '" target="_blank">more</a>]' 
                 : '')
             : '';
+        
+        // Replace line breaks with <br> tags.
+        review = review.replace(/\n/g, '<br>');
 
         return html`
         <div class="letterboxd-embed-tc-diary-entry">

@@ -3,10 +3,27 @@ new file mode 100644
 index 0000000..c88a062
 Binary files /dev/null and b/node_modules/letterboxd-api/.DS_Store differ
 diff --git a/node_modules/letterboxd-api/dist/letterboxd.js b/node_modules/letterboxd-api/dist/letterboxd.js
-index 7284641..c870016 100644
+index 7284641..9182cc8 100644
 --- a/node_modules/letterboxd-api/dist/letterboxd.js
 +++ b/node_modules/letterboxd-api/dist/letterboxd.js
-@@ -262,14 +262,18 @@ function invalidUsername(username) {
+@@ -109,10 +109,14 @@ function getReview(element) {
+     }
+     // loop through paragraphs
+     reviewParagraphs.each((i, element) => {
+-        const reviewParagraph = $(element).text();
++        let reviewParagraph = $(element).text();
++
++        // Replace '.' then a letter with '.\n' to create new lines
++        reviewParagraph = reviewParagraph.replace(/\.(?=[a-zA-Z])/g, ".\n");
++
+         // only add paragaphs that are the review
+         if (reviewParagraph !== "This review may contain spoilers.") {
+-            review += reviewParagraph + "\n";
++            review += reviewParagraph + "\n\n";
+         }
+     });
+     // tidy up and add review to the item
+@@ -262,14 +266,18 @@ function invalidUsername(username) {
  }
  function getDiaryData(username) {
      const uri = `https://letterboxd.com/${username}/rss/`;

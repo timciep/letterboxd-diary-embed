@@ -39,6 +39,12 @@ export default {
 			for (const key of referrerList.keys) {
 				try {
 					const url = new URL(key.name);
+					// Skip localhost and other local development URLs
+					if (url.hostname === 'localhost' || 
+						url.hostname === '127.0.0.1' || 
+						url.hostname === '0.0.0.0') {
+						continue;
+					}
 					uniqueBaseUrls.add(url.origin);
 				} catch (e) {
 					// Skip invalid URLs
@@ -47,6 +53,7 @@ export default {
 			}
 			
 			return new Response(JSON.stringify({
+				count: uniqueBaseUrls.size,
 				referrers: Array.from(uniqueBaseUrls)
 			}, null, 2), {
 				headers: {

@@ -30,6 +30,32 @@ export interface Env {
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+		const url = new URL(request.url);
+		
+		if (url.pathname === '/list-referrers') {
+			const referrerList = await env.referer_log.list();
+			const uniqueBaseUrls = new Set<string>();
+			
+			for (const key of referrerList.keys) {
+				try {
+					const url = new URL(key.name);
+					uniqueBaseUrls.add(url.origin);
+				} catch (e) {
+					// Skip invalid URLs
+					console.error(`Invalid URL in referer_log: ${key.name}`);
+				}
+			}
+			
+			return new Response(JSON.stringify({
+				referrers: Array.from(uniqueBaseUrls)
+			}, null, 2), {
+				headers: {
+					"content-type": "application/json;charset=UTF-8",
+					"Access-Control-Allow-Origin": "*",
+				},
+			});
+		}
+
 		const queryParams = getQueryParamsFromUrl(request.url);
 
 		const test = queryParams.get('test') === 'true';

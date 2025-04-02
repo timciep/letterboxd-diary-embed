@@ -42,7 +42,9 @@ export default {
 					// Skip localhost and other local development URLs
 					if (url.hostname === 'localhost' || 
 						url.hostname === '127.0.0.1' || 
-						url.hostname === '0.0.0.0') {
+						url.hostname === '0.0.0.0' ||
+						url.hostname.endsWith('atari-embeds.googleusercontent.com')
+					) {
 						continue;
 					}
 					uniqueBaseUrls.add(url.origin);

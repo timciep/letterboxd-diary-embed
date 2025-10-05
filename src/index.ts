@@ -100,7 +100,12 @@ export default {
 			});
 		}
 
-		console.log({username, referer, no_cache: !cache, raw});
+		console.log({
+			username, 
+			referer, 
+			no_cache: !cache, 
+			raw: !!raw,
+		});
 
 		if (raw === 'true') {
 			const raw = await getRaw(username);

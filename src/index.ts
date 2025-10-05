@@ -65,7 +65,7 @@ export default {
 			});
 		}
 
-		const queryParams = getQueryParamsFromUrl(request.url);
+		const queryParams = getQueryParamsFromUrl(url);
 
 		const test = queryParams.get('test') === 'true';
 		const cache = queryParams.get('nocache') !== 'true';
@@ -127,16 +127,17 @@ export default {
 			}
 	
 			if ( ! test && cache) {
-				await env.letterboxd_diary_cache.put(username, html, {
+				// Write KV updates in the background to avoid blocking the response
+				ctx.waitUntil(env.letterboxd_diary_cache.put(username, html, {
 					expirationTtl: 60 * 60, // seconds (= 1 hour)
-				});
+				}));
 
 				const referer = request.headers.get('referer');
 
-				console.log({username, referer});
+				// console.log({username, referer});
 
 				if (referer) {
-					await env.referer_log.put(referer, 'true')
+					ctx.waitUntil(env.referer_log.put(referer, 'true'));
 				}
 			}
 		}
@@ -149,10 +150,7 @@ export default {
 		});
 	},
 };
-
-function getQueryParamsFromUrl(url: string): URLSearchParams {
-	const urlObj = new URL(url);
-	const searchParams = urlObj.searchParams;
-
+function getQueryParamsFromUrl(url: URL): URLSearchParams {
+	const searchParams = url.searchParams;
 	return searchParams;
 }

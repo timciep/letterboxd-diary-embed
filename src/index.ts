@@ -31,6 +31,7 @@ export interface Env {
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
 		const url = new URL(request.url);
+		const referer = request.headers.get('referer');
 		
 		if (url.pathname === '/list-referrers') {
 			const referrerList = await env.referer_log.list();
@@ -99,6 +100,8 @@ export default {
 			});
 		}
 
+		console.log({username, referer, no_cache: !cache, raw});
+
 		if (raw === 'true') {
 			const raw = await getRaw(username);
 
@@ -131,10 +134,6 @@ export default {
 				ctx.waitUntil(env.letterboxd_diary_cache.put(username, html, {
 					expirationTtl: 60 * 60, // seconds (= 1 hour)
 				}));
-
-				const referer = request.headers.get('referer');
-
-				// console.log({username, referer});
 
 				if (referer) {
 					ctx.waitUntil(env.referer_log.put(referer, 'true'));

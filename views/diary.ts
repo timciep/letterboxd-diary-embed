@@ -11,6 +11,57 @@ const MONTHS = [
 const html = (strings: TemplateStringsArray, ...values: any) => String.raw({ raw: strings }, ...values);
 
 export default function diaryView(diaryList: Diary[], username: string): string {
+    // Build once to reduce intermediate string allocations
+    const entriesHtml = diaryList.map((diary) => {
+        const date = diary.date.watched ? new Date(diary.date.watched) : null;
+        const dateString =  date ? `${MONTHS[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}` : '';
+
+        // Truncate review if it's too long.
+        let review = diary.review
+            ? diary.review.substring(0, REVIEW_CHARS) + (diary.review.length > REVIEW_CHARS 
+                ? '... [<a href="' + diary.uri + '" target="_blank">more</a>]' 
+                : '')
+            : '';
+        
+        // Replace line breaks with <br> tags.
+        review = review.replace(/\n/g, '<br>');
+
+        return html`
+        <div class="letterboxd-embed-tc-diary-entry">
+            <div class="letterboxd-embed-tc-content">
+                <div class="letterboxd-embed-tc-poster">
+                    <a href="${diary.uri}" target="_blank">
+                        <img src="${diary.film?.image?.small ?? ''}" alt="${diary.film.title} poster">
+                    </a>
+                </div>
+
+                <div>
+                    <div class="letterboxd-embed-tc-title">
+                        ${diary.film.title}
+                        <span class="letterboxd-embed-tc-year">
+                            ${diary.film.year}
+                        </span>
+                    </div>
+
+                    <div class="letterboxd-embed-tc-date">
+                        ${diary.isRewatch ? '&#9850;' : ''} ${dateString}
+                    </div>
+
+                    <div class="letterboxd-embed-tc-rating">
+                        ${diary.rating.text ?? ''}
+                    </div>
+
+                    ${review ? `
+                        <div class="letterboxd-embed-tc-review">${review}</div>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+
+        <div class="letterboxd-embed-tc-divider"></div>
+    `;
+    }).join('');
+
     return html`
 
 <style>
@@ -83,54 +134,7 @@ export default function diaryView(diaryList: Diary[], username: string): string 
 </style>
 
 <div id="letterboxd-embed-tc">
-    ${diaryList.map((diary, idx) => {
-        const date = diary.date.watched ? new Date(diary.date.watched) : null;
-        const dateString =  date ? `${MONTHS[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}` : '';
-
-        // Truncate review if it's too long.
-        let review = diary.review
-            ? diary.review.substring(0, REVIEW_CHARS) + (diary.review.length > REVIEW_CHARS 
-                ? '... [<a href="' + diary.uri + '" target="_blank">more</a>]' 
-                : '')
-            : '';
-        
-        // Replace line breaks with <br> tags.
-        review = review.replace(/\n/g, '<br>');
-
-        return html`
-        <div class="letterboxd-embed-tc-diary-entry">
-            <div class="letterboxd-embed-tc-content">
-                <div class="letterboxd-embed-tc-poster">
-                    <a href="${diary.uri}" target="_blank">
-                        <img src="${diary.film?.image?.small ?? ''}" alt="${diary.film.title} poster">
-                    </a>
-                </div>
-
-                <div>
-                    <div class="letterboxd-embed-tc-title">
-                        ${diary.film.title}
-                        <span class="letterboxd-embed-tc-year">
-                            ${diary.film.year}
-                        </span>
-                    </div>
-
-                    <div class="letterboxd-embed-tc-date">
-                        ${diary.isRewatch ? '&#9850;' : ''} ${dateString}
-                    </div>
-
-                    <div class="letterboxd-embed-tc-rating">
-                        ${diary.rating.text ?? ''}
-                    </div>
-
-                    ${review ? `
-                        <div class="letterboxd-embed-tc-review">${review}</div>
-                    ` : ''}
-                </div>
-            </div>
-        </div>
-
-        <div class="letterboxd-embed-tc-divider"></div>
-    `}).join('')}
+    ${entriesHtml}
 
     <div class="letterboxd-embed-tc-more">
         <a href="https://letterboxd.com/${username}" target="_blank">...more on Letterboxd</a>

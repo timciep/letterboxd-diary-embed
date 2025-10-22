@@ -128,7 +128,7 @@ export default function diaryView(diaryList: Diary[], username: string): string 
         text-align: left;
     }
 
-    .letterboxd-embed-tc-more {
+    .letterboxd-embed-tc-footer {
         text-align: left;
     }
 </style>
@@ -136,8 +136,8 @@ export default function diaryView(diaryList: Diary[], username: string): string 
 <div id="letterboxd-embed-tc">
     ${entriesHtml}
 
-    <div class="letterboxd-embed-tc-more">
-        <a href="https://letterboxd.com/${username}" target="_blank">...more on Letterboxd</a>
+    <div class="letterboxd-embed-tc-footer">
+        Via <a href="https://letterboxd-embed.timcieplowski.com/" target="_blank">Letterboxd Diary Embed</a>
     </div>
 </div>
 `;

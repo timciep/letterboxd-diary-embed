@@ -130,6 +130,7 @@ export default function diaryView(diaryList: Diary[], username: string): string 
 
     .letterboxd-embed-tc-footer {
         text-align: left;
+        font-size: 0.9rem;
     }
 </style>
 

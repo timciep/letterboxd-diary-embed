@@ -34,26 +34,33 @@ export default {
 		const referer = request.headers.get('referer');
 		
 		if (url.pathname === '/list-referrers') {
-			const referrerList = await env.referer_log.list();
 			const uniqueBaseUrls = new Set<string>();
+			let cursor: string | undefined = undefined;
 			
-			for (const key of referrerList.keys) {
-				try {
-					const url = new URL(key.name);
-					// Skip localhost and other local development URLs
-					if (url.hostname === 'localhost' || 
-						url.hostname === '127.0.0.1' || 
-						url.hostname === '0.0.0.0' ||
-						url.hostname.endsWith('atari-embeds.googleusercontent.com')
-					) {
-						continue;
+			// Paginate through all keys in the KV namespace
+			do {
+				const referrerList: { keys: { name: string }[], cursor?: string } = await env.referer_log.list({ cursor });
+				
+				for (const key of referrerList.keys) {
+					try {
+						const url = new URL(key.name);
+						// Skip localhost and other local development URLs
+						if (url.hostname === 'localhost' || 
+							url.hostname === '127.0.0.1' || 
+							url.hostname === '0.0.0.0' ||
+							url.hostname.endsWith('atari-embeds.googleusercontent.com')
+						) {
+							continue;
+						}
+						uniqueBaseUrls.add(url.origin);
+					} catch (e) {
+						// Skip invalid URLs
+						console.error(`Invalid URL in referer_log: ${key.name}`);
 					}
-					uniqueBaseUrls.add(url.origin);
-				} catch (e) {
-					// Skip invalid URLs
-					console.error(`Invalid URL in referer_log: ${key.name}`);
 				}
-			}
+				
+				cursor = referrerList.cursor;
+			} while (cursor);
 			
 			return new Response(JSON.stringify({
 				count: uniqueBaseUrls.size,

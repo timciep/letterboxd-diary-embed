@@ -9,6 +9,7 @@
  */
 
 import { getHtml, getRaw } from "./letterboxd/letterboxd-helper";
+import { shouldExcludeReferrer } from "./referrer-filter";
 
 export interface Env {
 	// Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
@@ -43,16 +44,12 @@ export default {
 				
 				for (const key of referrerList.keys) {
 					try {
-						const url = new URL(key.name);
-						// Skip localhost and other local development URLs
-						if (url.hostname === 'localhost' || 
-							url.hostname === '127.0.0.1' || 
-							url.hostname === '0.0.0.0' ||
-							url.hostname.endsWith('atari-embeds.googleusercontent.com')
-						) {
+						const refererUrl = new URL(key.name);
+						// Skip local/dev traffic, IP addresses, internal hosts, and throwaway preview domains
+						if (shouldExcludeReferrer(refererUrl)) {
 							continue;
 						}
-						uniqueBaseUrls.add(url.origin);
+						uniqueBaseUrls.add(refererUrl.origin);
 					} catch (e) {
 						// Skip invalid URLs
 						console.error(`Invalid URL in referer_log: ${key.name}`);

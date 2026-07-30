@@ -10,11 +10,23 @@
 
 import { getHtml, getRaw } from "./letterboxd/letterboxd-helper";
 import { shouldExcludeReferrer } from "./referrer-filter";
+import { queryTopReferrers, recordRefererHit } from "./referrer-stats";
 
 export interface Env {
 	// Example binding to KV. Learn more at https://developers.cloudflare.com/workers/runtime-apis/kv/
 	letterboxd_diary_cache: KVNamespace;
 	referer_log: KVNamespace;
+
+	// Per-request referer counts. Write-only binding; reads go via the SQL API.
+	// Learn more at https://developers.cloudflare.com/analytics/analytics-engine/
+	referer_stats: AnalyticsEngineDataset;
+
+	// Secrets, for reading the dataset back in /top-referrers.
+	// Set with: npx wrangler secret put <NAME>
+	CF_ACCOUNT_ID?: string;
+	CF_ANALYTICS_TOKEN?: string;
+	// Optional. If set, /top-referrers requires ?token=<value>.
+	STATS_TOKEN?: string;
 	//
 	// Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
 	// MY_DURABLE_OBJECT: DurableObjectNamespace;
@@ -70,6 +82,47 @@ export default {
 			});
 		}
 
+		if (url.pathname === '/top-referrers') {
+			if (env.STATS_TOKEN && url.searchParams.get('token') !== env.STATS_TOKEN) {
+				return new Response('401. Invalid or missing token.', {
+					status: 401,
+					headers: { "content-type": "text/plain;charset=UTF-8" },
+				});
+			}
+
+			if ( ! env.CF_ACCOUNT_ID || ! env.CF_ANALYTICS_TOKEN) {
+				return new Response('501. Set the CF_ACCOUNT_ID and CF_ANALYTICS_TOKEN secrets to enable this endpoint.', {
+					status: 501,
+					headers: { "content-type": "text/plain;charset=UTF-8" },
+				});
+			}
+
+			const days = Number(url.searchParams.get('days')) || 7;
+			const limit = Number(url.searchParams.get('limit')) || 50;
+
+			try {
+				const referrers = await queryTopReferrers(env.CF_ACCOUNT_ID, env.CF_ANALYTICS_TOKEN, days, limit);
+
+				return new Response(JSON.stringify({
+					days,
+					count: referrers.length,
+					referrers,
+				}, null, 2), {
+					headers: {
+						"content-type": "application/json;charset=UTF-8",
+						"Access-Control-Allow-Origin": "*",
+					},
+				});
+			} catch (e) {
+				console.error(`/top-referrers failed: ${e}`);
+
+				return new Response('502. Could not query referer stats.', {
+					status: 502,
+					headers: { "content-type": "text/plain;charset=UTF-8" },
+				});
+			}
+		}
+
 		const queryParams = getQueryParamsFromUrl(url);
 
 		const test = queryParams.get('test') === 'true';
@@ -121,9 +174,15 @@ export default {
 			});
 		}
 
-		let html = !test && cache 
+		let html = !test && cache
 			? await env.letterboxd_diary_cache.get(username)
 			: null;
+
+		// Count every real embed request, cache hits included, so the stats reflect
+		// traffic rather than cache misses (unlike the referer_log write below).
+		if ( ! test) {
+			recordRefererHit(env.referer_stats, referer, username, !!html);
+		}
 
 		if ( ! html) {
 			html = await getHtml(username, test);

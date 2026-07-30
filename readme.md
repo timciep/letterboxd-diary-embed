@@ -32,6 +32,35 @@ Add the following to your website, where you want the list (**replace \<your-let
 * `nocache`: If `true`, passes 1-hour cache of response.
 * `raw`: If `true`, returns raw uncached Letterboxd JSON payload.
 
+## Referrer stats
+
+Two endpoints, backed by different stores:
+
+* `/list-referrers` — unique referring origins, from the `referer_log` KV namespace. No volume data, and it only records on a cache miss.
+* `/top-referrers` — referring sites ranked by request count, from an [Analytics Engine](https://developers.cloudflare.com/analytics/analytics-engine/) dataset written on *every* request.
+
+### `/top-referrers` params
+
+* `days`: Lookback window, 1–90. Defaults to `7`.
+* `limit`: Rows returned, 1–500. Defaults to `50`.
+* `token`: Required only if the `STATS_TOKEN` secret is set.
+
+Response rows carry `referrer`, `requests`, `cacheHits`, and `cacheHitRate`.
+
+### Setup
+
+The dataset itself needs no setup — it is created on first write, as soon as a build with the `referer_stats` binding is deployed. Reading it back does need credentials, since the Worker binding is write-only and reads go through the SQL API:
+
+```
+npx wrangler secret put CF_ACCOUNT_ID       # Cloudflare account ID
+npx wrangler secret put CF_ANALYTICS_TOKEN  # API token with Account Analytics Read
+npx wrangler secret put STATS_TOKEN         # optional; gates /top-referrers
+```
+
+Until the first two are set, `/top-referrers` returns 501 — writes still accumulate in the meantime. **Without `STATS_TOKEN` the endpoint is public**, like `/list-referrers`, which means anyone can read the traffic volumes of every site using the embed.
+
+Every request is written, tagged in `blob3` as `site` (a real referring site), `filtered` ([`shouldExcludeReferrer`](src/referrer-filter.ts) rejects it — localhost, IPs, preview domains), or `none` (no `Referer` header). `/top-referrers` ranks only `site`; the rest stay queryable via the SQL API. Retention is 90 days.
+
 ## Develop locally
 
 ```

@@ -7,6 +7,13 @@ kv_namespaces = [
   { binding = "referer_log", id = "c9e76638d33940b69d4b6c4e5680c3db" }
 ]
 
+# Per-request referer counts, powering /top-referrers.
+# The dataset is created on first write — no dashboard setup needed.
+# Docs: https://developers.cloudflare.com/analytics/analytics-engine/
+[[analytics_engine_datasets]]
+binding = "referer_stats"
+dataset = "referer_stats"
+
 # Variable bindings. These are arbitrary, plaintext strings (similar to environment variables)
 # Note: Use secrets to store sensitive data.
 # Docs: https://developers.cloudflare.com/workers/platform/environment-variables

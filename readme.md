@@ -45,7 +45,7 @@ Two endpoints, backed by different stores:
 * `limit`: Rows returned, 1–500. Defaults to `50`.
 * `token`: Required only if the `STATS_TOKEN` secret is set.
 
-Response rows carry `referrer`, `requests`, `cacheHits`, and `cacheHitRate`.
+Response rows carry `referrer` and `requests`.
 
 ### Setup
 

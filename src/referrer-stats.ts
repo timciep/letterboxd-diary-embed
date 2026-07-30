@@ -25,8 +25,6 @@ type RefererCategory = 'site' | 'filtered' | 'none';
 export interface TopReferrer {
 	referrer: string;
 	requests: number;
-	cacheHits: number;
-	cacheHitRate: number;
 }
 
 /**
@@ -65,6 +63,8 @@ export function recordRefererHit(
 		dataset.writeDataPoint({
 			indexes: [origin.slice(0, MAX_INDEX_LENGTH)],
 			blobs: [origin, username, category],
+			// Still recorded, but /top-referrers no longer reports it. Query
+			// SUM(_sample_interval * double1) via the SQL API for cache hits.
 			doubles: [cacheHit ? 1 : 0],
 		});
 	} catch (e) {
@@ -91,8 +91,7 @@ export async function queryTopReferrers(
 	const sql = `
 		SELECT
 			blob1 AS referrer,
-			SUM(_sample_interval) AS requests,
-			SUM(_sample_interval * double1) AS cache_hits
+			SUM(_sample_interval) AS requests
 		FROM ${DATASET}
 		WHERE timestamp >= NOW() - INTERVAL '${safeDays}' DAY
 			AND blob3 = 'site'
@@ -120,15 +119,9 @@ export async function queryTopReferrers(
 
 	const body = await response.json() as { data?: Array<Record<string, unknown>> };
 
-	return (body.data ?? []).map((row) => {
-		const requests = Number(row.requests) || 0;
-		const cacheHits = Number(row.cache_hits) || 0;
-
-		return {
-			referrer: String(row.referrer),
-			requests,
-			cacheHits,
-			cacheHitRate: requests > 0 ? Math.round((cacheHits / requests) * 1000) / 1000 : 0,
-		};
-	});
+	// requests arrives as a string — Analytics Engine serialises UInt64 that way.
+	return (body.data ?? []).map((row) => ({
+		referrer: String(row.referrer),
+		requests: Number(row.requests) || 0,
+	}));
 }

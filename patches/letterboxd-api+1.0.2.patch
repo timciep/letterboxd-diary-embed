@@ -1,20 +1,14 @@
-diff --git a/node_modules/letterboxd-api/.DS_Store b/node_modules/letterboxd-api/.DS_Store
-new file mode 100644
-index 0000000..c88a062
-Binary files /dev/null and b/node_modules/letterboxd-api/.DS_Store differ
 diff --git a/node_modules/letterboxd-api/dist/letterboxd.js b/node_modules/letterboxd-api/dist/letterboxd.js
-index 7284641..9182cc8 100644
+index 7284641..82a212e 100644
 --- a/node_modules/letterboxd-api/dist/letterboxd.js
 +++ b/node_modules/letterboxd-api/dist/letterboxd.js
-@@ -109,10 +109,14 @@ function getReview(element) {
+@@ -109,10 +109,13 @@ function getReview(element) {
      }
      // loop through paragraphs
      reviewParagraphs.each((i, element) => {
--        const reviewParagraph = $(element).text();
-+        let reviewParagraph = $(element).text();
-+
-+        // Replace '.' then a letter with '.\n' to create new lines
-+        reviewParagraph = reviewParagraph.replace(/\.(?=[a-zA-Z])/g, ".\n");
++        // .text() drops <br> entirely, so turn them into newlines first
++        $(element).find("br").replaceWith("\n");
+         const reviewParagraph = $(element).text();
 +
          // only add paragaphs that are the review
          if (reviewParagraph !== "This review may contain spoilers.") {
@@ -23,7 +17,7 @@ index 7284641..9182cc8 100644
          }
      });
      // tidy up and add review to the item
-@@ -262,14 +266,18 @@ function invalidUsername(username) {
+@@ -262,14 +265,18 @@ function invalidUsername(username) {
  }
  function getDiaryData(username) {
      const uri = `https://letterboxd.com/${username}/rss/`;
